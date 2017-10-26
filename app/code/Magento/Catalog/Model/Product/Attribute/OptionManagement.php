@@ -40,19 +40,22 @@ class OptionManagement implements \Magento\Catalog\Api\ProductAttributeOptionMan
      */
     public function add($attributeCode, $option)
     {
+        /** @var \Magento\Eav\Api\Data\AttributeOptionInterface[] $currentOptions */
         $currentOptions = $this->getItems($attributeCode);
-        array_walk($currentOptions, function (&$attributeOption) {
-            /** @var \Magento\Eav\Api\Data\AttributeOptionInterface $attributeOption */
-            $attributeOption = $attributeOption->getLabel();
-        });
-        if (!in_array($option->getLabel(), $currentOptions)) {
-            return $this->eavOptionManagement->add(
-                \Magento\Catalog\Api\Data\ProductAttributeInterface::ENTITY_TYPE_CODE,
-                $attributeCode,
-                $option
-            );
+        if (is_array($currentOptions)) {
+            array_walk($currentOptions, function (&$attributeOption) {
+                /** @var \Magento\Eav\Api\Data\AttributeOptionInterface $attributeOption */
+                $attributeOption = $attributeOption->getLabel();
+            });
+            if (in_array($option->getLabel(), $currentOptions)) {
+                return false;
+            }
         }
-        return false;
+        return $this->eavOptionManagement->add(
+            \Magento\Catalog\Api\Data\ProductAttributeInterface::ENTITY_TYPE_CODE,
+            $attributeCode,
+            $option
+        );
     }
 
     /**
